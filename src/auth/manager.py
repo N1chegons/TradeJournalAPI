@@ -6,7 +6,7 @@ from fastapi_users import BaseUserManager,IntegerIDMixin
 
 from src.config import settings
 from src.database import get_user_db
-from src.database.models import User
+from src.auth.models import User
 
 SECRET = settings.MANAGER_PASS
 

@@ -5,7 +5,6 @@ from pydantic import EmailStr
 from sqlalchemy import text
 from sqlalchemy.orm import Mapped
 from sqlalchemy.testing.schema import mapped_column
-
 from src.database import Base
 
 
