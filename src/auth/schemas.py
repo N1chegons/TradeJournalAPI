@@ -6,7 +6,6 @@ from pydantic import field_validator, EmailStr
 class UserRead(schemas.BaseUser[int]):
     id: int
     username: str
-    surname: str
     email: EmailStr
     hashed_password: str
     registered_at: datetime.datetime
@@ -20,6 +19,5 @@ class UserRead(schemas.BaseUser[int]):
 
 class UserCreate(schemas.BaseUserCreate):
     username: str
-    surname: str
     password: str
     email: EmailStr

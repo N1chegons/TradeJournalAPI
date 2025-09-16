@@ -1,6 +1,7 @@
 import enum
 from datetime import datetime
 
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped
 from sqlalchemy.testing.schema import mapped_column
 from src.database import Base
@@ -16,4 +17,4 @@ class Trade(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     ticket: Mapped[str]
     direction: Mapped[Direction]
-    date: Mapped[datetime.date]
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete='CASCADE'))

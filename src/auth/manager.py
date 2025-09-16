@@ -4,7 +4,7 @@ from typing import Optional, Dict
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager,IntegerIDMixin
 
-from src.config import settings
+from src.conf import settings
 from src.database import get_user_db
 from src.auth.models import User
 

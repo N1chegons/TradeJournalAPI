@@ -1,6 +1,6 @@
 from fastapi_users.authentication import CookieTransport, JWTStrategy, AuthenticationBackend
 
-from src.config import settings
+from src.conf import settings
 
 SECRET = settings.JWT_KEY
 
