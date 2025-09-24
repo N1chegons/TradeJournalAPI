@@ -7,5 +7,5 @@ def calculating_pnl(dir: Direction, entry_price: float, exit_price: float, quant
     elif dir == Direction.short:
         pnl = (entry_price - exit_price) * quantity
     else:
-        raise ValueError(f"Unknown trade direction.")
+        raise ValueError(f"Unknown trade direction: {dir}")
     return round(pnl, 2)
