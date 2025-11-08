@@ -1,3 +1,6 @@
+import io
+import csv
+
 from fastapi import HTTPException
 from sqlalchemy import select, insert, update, delete
 
@@ -46,7 +49,7 @@ class TradeRepository:
                 )
 
     @classmethod
-    async def get_more_trade_filter_journal(cls,limit: int,  user: User, **filters):
+    async def get_more_trade_filter_journal(cls, limit: int,  user: User, **filters):
         async with async_session() as session:
             query = select(Trade).where(Trade.user_id == user.id)
             if filters.get('ticket'):
@@ -90,6 +93,14 @@ class TradeRepository:
                     status_code=500,
                     detail="Please check a field.Unfounded error"
                 )
+
+    @classmethod
+    async def _for_csv(cls, user: User):
+        async with async_session() as session:
+            query = select(Trade).filter_by(user_id=user.id)
+            result = await session.execute(query)
+            trades = result.scalars().all()
+            return trades
 
     # post
     @classmethod
@@ -178,3 +189,38 @@ class TradeRepository:
                     detail="Unknown error."
                 )
 
+class ExportService:
+    @classmethod
+    async def get_all_trades_CSV(cls, user: User):
+        async with async_session() as session:
+            trades = await TradeRepository._for_csv(user)
+
+            # create CSV
+            csv_buffer = io.StringIO()
+            writer = csv.writer(csv_buffer)
+
+            # Headers
+            writer.writerow([
+                "ID", "Symbol", "Direction",
+                "Entry Price", "Exit Price", "Quantity", "PnL", "Date"
+            ])
+
+            for trade in trades:
+                # noinspection PyUnresolvedReferences
+                writer.writerow([
+                    trade.id,
+                    trade.ticket,
+                    trade.direction,
+                    trade.entry_price,
+                    trade.exit_price,
+                    trade.quantity,
+                    trade.PnL,
+                    trade.added_at,
+                ])
+
+            csv_data = csv_buffer.getvalue()
+            csv_buffer.close()
+
+            filename = f"trades_export_{user.username}.csv"
+
+            return csv_data, filename

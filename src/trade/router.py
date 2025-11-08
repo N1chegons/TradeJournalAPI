@@ -1,13 +1,13 @@
 from datetime import datetime
 from typing import Optional
-from fastapi import HTTPException
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
+from fastapi import Response
 from fastapi.params import Query, Depends
 
 from src.auth.models import User
 from src.auth.router import cur_user
-from src.trade.repository import TradeRepository
+from src.trade.repository import TradeRepository, ExportService
 from src.trade.schemas import TradeCreate
 from src.trade.utilits import calculating_pnl
 
@@ -52,6 +52,20 @@ async def get_trades_filters(
     )
     return trades
 
+@router.get("/import_trades_csv/")
+async def get_all_trades_csv(user: User = Depends(cur_user)):
+    csv_data, filename = await ExportService.get_all_trades_CSV(user)
+
+    return Response(
+        content=csv_data,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition":
+                f"attachment; filename={filename}",
+            "Content-Type":  "text/csv; charset=utf-8"
+        }
+    )
+
 # post
 @router.post("/add_trade/", description="Write a ticket in XXX format.")
 async def add_trade(schemas: TradeCreate = Depends(), user: User = Depends(cur_user)):
@@ -79,7 +93,7 @@ async def update_trade(trade_id: int, schemas: TradeCreate = Depends(),  user: U
     updated_trade = await TradeRepository.update_trade_in_journal(trade_id, schemas, pnl, user)
     return updated_trade
 
-#delete
+# delete
 @router.delete("/delete_trade/{trade_id}/", summary="Delete trade with ID")
 async def delete_trade(trade_id: int, user: User = Depends(cur_user)):
     del_trade = await TradeRepository.delete_trade_in_journal(trade_id, user)
