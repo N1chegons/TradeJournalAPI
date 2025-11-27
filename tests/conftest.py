@@ -26,7 +26,6 @@ async def setup_db():
     async with async_engine.begin() as connection:
         await connection.run_sync(Base.metadata.drop_all)
         await connection.run_sync(Base.metadata.create_all)
-        print("\nTABLES CREATED")
         yield
 
 @pytest.fixture(scope="session")
@@ -34,17 +33,17 @@ async def ac() -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
 
-@pytest.fixture(scope="session")
-def mock_user():
-    user = MagicMock()
-    user.id = 1
-    user.email = "tm@mail.ru"
-    user.is_active = True
-    return user
-
-@pytest.fixture(scope="session")
-def auth_cookies(mock_user):
-    with patch('src.auth.router.fastapi_users.current_user', return_value=mock_user):
-        print(f"MOCK USER: {mock_user}")
-        print(f"MOCK USER: {mock_user.id}")
-        return {'fastapiusersauth': 'fake'}
+# @pytest.fixture(scope="session")
+# def mock_user():
+#     user = MagicMock()
+#     user.id = 1
+#     user.email = "tm@mail.ru"
+#     user.is_active = True
+#     return user
+#
+# @pytest.fixture(scope="session")
+# def auth_cookies(mock_user):
+#     with patch('src.auth.router.fastapi_users.current_user', return_value=mock_user):
+#         print(f"MOCK USER: {mock_user}")
+#         print(f"MOCK USER: {mock_user.id}")
+#         return {'fastapiusersauth': 'fake'}
