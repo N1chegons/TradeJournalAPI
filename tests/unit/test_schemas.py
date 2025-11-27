@@ -3,6 +3,7 @@ from datetime import datetime
 import pytest
 from pydantic import ValidationError
 
+from src.auth.schemas import UserRead, UserCreate
 from src.trade.models import Direction
 from src.trade.schemas import TradeCreate, TradeView, TradeViewAll
 
@@ -164,3 +165,52 @@ class TestTradeSchemas:
 
         assert "added_at" in str(exc_info.value)
 
+class TestUserSchemas:
+    async def test_user_read_valid(self):
+        user_view = {
+            "id": 1,
+            "username": "Nikolai",
+            "email": "ewwqqa@mail.com",
+            "hashed_password": "hash_pass",
+            "registered_at": "2023-01-15T10:30:00",
+            "is_active": True,
+            "is_superuser": False,
+            "is_verified": True,
+        }
+        user = UserRead(**user_view)
+        assert user.username == "Nikolai"
+        assert user.registered_at == "01.15.2023"
+        assert user.is_active == True
+    async def test_user_create_valid(self):
+        user_create = {
+            "username": "Jack",
+            "password": "passs123141",
+            "email": "email@mail.com"
+        }
+        user = UserCreate(**user_create)
+        assert user.username == "Jack"
+        assert user.password == "passs123141"
+        assert "@" in user.email
+    async def test_email_field_invalid_view(self):
+        user_view = {
+            "id": 1,
+            "username": "Nikolai",
+            "email": "none_email",
+            "hashed_password": "hash_pass",
+            "registered_at": "2023-01-15T10:30:00",
+            "is_active": True,
+            "is_superuser": False,
+            "is_verified": True,
+        }
+        with pytest.raises(ValidationError) as exc:
+            user = UserRead(**user_view)
+        assert "email" in str(exc)
+    async def test_email_field_invalid_create(self):
+        user_create = {
+            "username": "Gary",
+            "password": "asss231",
+            "email": "invalid_poh_poh"
+        }
+        with pytest.raises(ValidationError) as exc:
+            UserCreate(**user_create)
+        assert "email" in str(exc)

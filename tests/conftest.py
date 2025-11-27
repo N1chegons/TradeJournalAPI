@@ -6,6 +6,7 @@ from fastapi_users.password import PasswordHelper
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
+from src.auth.models import User
 from src.database import get_async_session, Base
 from src.main import app
 
@@ -33,13 +34,20 @@ async def ac() -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
 
-# @pytest.fixture(scope="session")
-# def mock_user():
-#     user = MagicMock()
-#     user.id = 1
-#     user.email = "tm@mail.ru"
-#     user.is_active = True
-#     return user
+@pytest.fixture(scope="session")
+async def async_session_test():
+    async with async_session() as session:
+        yield session
+
+@pytest.fixture(scope="session")
+def mock_user():
+    user = User(
+        id=964455443,
+        email="ghost@test.ru",
+        hashed_password="test",
+        is_active=True,
+    )
+    return user
 #
 # @pytest.fixture(scope="session")
 # def auth_cookies(mock_user):
