@@ -9,6 +9,7 @@ class UserRead(schemas.BaseUser[int]):
     email: EmailStr
     hashed_password: str
     registered_at: datetime.datetime
+
     is_active: bool
     is_superuser: bool
     is_verified: bool
